@@ -1,0 +1,560 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="keywords" content="Time-of-Flight, ToF, Mobile Robot, Navigation, ROS, SLAM, Localization, Sphero RVR, AMCL">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Application of Time-of-Flight Technology for Mobile Robot Perception and Navigation</title>
+
+  <link href="https://fonts.googleapis.com/css?family=Google+Sans|Noto+Sans|Castoro" rel="stylesheet">
+  <link rel="stylesheet" href="./static/css/bulma.min.css">
+  <link rel="stylesheet" href="./static/css/bulma-carousel.min.css">
+  <link rel="stylesheet" href="./static/css/bulma-slider.min.css">
+  <link rel="stylesheet" href="./static/css/fontawesome.all.min.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/jpswalsh/academicons@1/css/academicons.min.css">
+  <link rel="stylesheet" href="./static/css/index.css">
+
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+  <script defer src="./static/js/fontawesome.all.min.js"></script>
+  <script src="./static/js/bulma-carousel.min.js"></script>
+  <script src="./static/js/bulma-slider.min.js"></script>
+  <script src="./static/js/index.js"></script>
+
+  <style>
+    .slideshow-container { position: relative; max-width: 900px; margin: auto; overflow: hidden; }
+    .slide { display: none; animation: fadeIn 0.5s; }
+    .slide.active { display: block; }
+    @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+    .slide-controls { text-align: center; padding: 20px; }
+    .slide-controls button { margin: 0 10px; padding: 10px 20px; cursor: pointer; }
+    .slide-counter { text-align: center; padding: 10px; font-size: 14px; color: #666; }
+    .demo-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 20px; margin-top: 20px; }
+    .demo-item { text-align: center; }
+    .demo-item img { max-width: 100%; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
+    .equation { background: #f5f5f5; padding: 15px; border-radius: 5px; font-family: 'Courier New', monospace; text-align: center; margin: 15px 0; overflow-x: auto; }
+    .figure-grid { display: grid; gap: 10px; margin: 20px 0; }
+    .figure-grid img { width: 100%; border-radius: 4px; }
+    .fig-3col { grid-template-columns: repeat(3, 1fr); }
+    .fig-4col { grid-template-columns: repeat(4, 1fr); }
+    .fig-2col { grid-template-columns: repeat(2, 1fr); }
+    @media (max-width: 768px) { .demo-grid, .fig-3col, .fig-4col { grid-template-columns: 1fr; } }
+  </style>
+</head>
+<body>
+
+<!-- Hero Section -->
+<section class="hero">
+  <div class="hero-body">
+    <div class="container is-max-desktop">
+      <div class="columns is-centered">
+        <div class="column has-text-centered">
+          <h1 class="title is-1 publication-title">Application of Time-of-Flight Technology for Mobile Robot Perception and Navigation</h1>
+          <div class="is-size-5 publication-authors">
+            <span class="author-block"><a href="https://github.com/laurent-19">1<sup>st</sup> Ioan Laurentiu Popa</a>,</span>
+            <span class="author-block"><a href="http://rocon.utcluj.ro/~levente">2<sup>nd</sup> Levente Tamas</a></span>
+          </div>
+          <div class="is-size-5 publication-authors">
+            <span class="author-block"><em>Faculty of Automation and Computer Science</em><br>
+            <em>Technical University of Cluj-Napoca</em><br>
+            Cluj-Napoca, Romania<br>
+            popa.la.ioan@student.utcluj.ro, levente.tamas@aut.utcluj.ro</span>
+          </div>
+          <div class="is-size-6 publication-venue" style="margin-top: 10px;">
+            <a onclick="openAqtrModal()" style="cursor: pointer;">
+              <span class="tag is-info is-medium">AQTR 2024 Student Forum</span>
+              <span class="tag is-light is-medium">IEEE International Conference on Automation, Quality and Testing, Robotics</span>
+            </a>
+          </div>
+          <div class="column has-text-centered">
+            <div class="publication-links">
+              <span class="link-block">
+                <a href="./aqrt-paper.pdf" class="external-link button is-normal is-rounded is-dark">
+                  <span class="icon"><i class="fas fa-file-pdf"></i></span>
+                  <span>Paper (PDF)</span>
+                </a>
+              </span>
+              <span class="link-block">
+                <a href="https://github.com/sphero-inc/sphero-sdk-raspberrypi-python" class="external-link button is-normal is-rounded is-dark">
+                  <span class="icon"><i class="fab fa-github"></i></span>
+                  <span>Sphero SDK</span>
+                </a>
+              </span>
+              <span class="link-block">
+                <a href="https://github.com/analogdevicesinc/aditof_sdk" class="external-link button is-normal is-rounded is-dark">
+                  <span class="icon"><i class="fab fa-github"></i></span>
+                  <span>ADI ToF SDK</span>
+                </a>
+              </span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Demo Videos -->
+<section class="section" style="background: #f5f5f5;">
+  <div class="container is-max-desktop">
+    <h2 class="title is-3 has-text-centered">Demo Videos</h2>
+    <div class="demo-grid">
+      <div class="demo-item">
+        <img src="static/images/demo-navigation.gif" alt="Navigation Demo">
+        <p><strong>Live Navigation</strong> - Real-time robot navigation with ROS</p>
+      </div>
+      <div class="demo-item">
+        <img src="static/images/demo-simulator.gif" alt="Simulator Demo">
+        <p><strong>ROS Simulator</strong> - Navigation testing in simulation</p>
+      </div>
+      <div class="demo-item">
+        <img src="static/images/demo-mapping.gif" alt="Mapping Demo">
+        <p><strong>Live Mapping</strong> - Environment mapping (3x speed)</p>
+      </div>
+      <div class="demo-item">
+        <img src="static/images/demo-localization.gif" alt="Localization Demo">
+        <p><strong>Monte Carlo Localization</strong> - AMCL particle filter (3x speed)</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Main Figure - Robotic Platform Block Diagram -->
+<section class="hero teaser">
+  <div class="container is-max-desktop">
+    <div class="hero-body">
+      <center><img src="static/images/paper-fig-008.png" alt="Robotic Platform Block Diagram" width="95%"></center>
+      <h2 class="subtitle has-text-centered">
+        <strong>System Architecture:</strong> Mobile robot platform integrating Sphero RVR, NVIDIA Jetson Nano, and Analog Devices Time-of-Flight depth camera for autonomous navigation using ROS
+      </h2>
+    </div>
+  </div>
+</section>
+
+<!-- Presentation Slides -->
+<section class="section">
+  <div class="container is-max-desktop">
+    <h2 class="title is-3 has-text-centered">Presentation Slides</h2>
+    <div class="slideshow-container">
+      <div class="slide active"><img src="static/images/slide-01.png" width="100%"></div>
+      <div class="slide"><img src="static/images/slide-02.png" width="100%"></div>
+      <div class="slide"><img src="static/images/slide-03.png" width="100%"></div>
+      <div class="slide"><img src="static/images/slide-04.png" width="100%"></div>
+      <div class="slide"><img src="static/images/slide-05.png" width="100%"></div>
+      <div class="slide"><img src="static/images/slide-06.png" width="100%"></div>
+      <div class="slide"><img src="static/images/slide-07.png" width="100%"></div>
+      <div class="slide"><img src="static/images/slide-08.png" width="100%"></div>
+      <div class="slide"><img src="static/images/slide-09.png" width="100%"></div>
+      <div class="slide"><img src="static/images/slide-10.png" width="100%"></div>
+      <div class="slide"><img src="static/images/slide-11.png" width="100%"></div>
+      <div class="slide"><img src="static/images/slide-12.png" width="100%"></div>
+      <div class="slide"><img src="static/images/slide-13.png" width="100%"></div>
+      <div class="slide"><img src="static/images/slide-14.png" width="100%"></div>
+      <div class="slide"><img src="static/images/slide-15.png" width="100%"></div>
+      <div class="slide"><img src="static/images/slide-16.png" width="100%"></div>
+      <div class="slide"><img src="static/images/slide-17.png" width="100%"></div>
+      <div class="slide"><img src="static/images/slide-18.png" width="100%"></div>
+    </div>
+    <div class="slide-counter">Slide <span id="currentSlide">1</span> of 18</div>
+    <div class="slide-controls">
+      <button class="button is-dark" onclick="changeSlide(-1)"><i class="fas fa-chevron-left"></i> Prev</button>
+      <button class="button is-info" onclick="toggleAutoPlay()" id="autoPlayBtn"><i class="fas fa-play"></i> Auto</button>
+      <button class="button is-dark" onclick="changeSlide(1)">Next <i class="fas fa-chevron-right"></i></button>
+    </div>
+  </div>
+</section>
+
+<!-- Abstract -->
+<section class="section">
+  <div class="container is-max-desktop">
+    <h2 class="title is-3">Abstract</h2>
+    <div class="content has-text-justified">
+      <p>This paper presents a comprehensive exploration of mobile robot control and navigation, specifically within the domain of Wheel Mobile Robots, with a primary focus on the integration of Time of Flight technology. Leveraging Analog Devices' AD-96TOF1-EBZ kit for depth perception, the study investigates robotic mechanics, analyzes cognition structures, and implements localization, mapping, and navigation strategies. The research highlights key contributions, including the development of Robot Operating System support for the newly released Sphero Rover, providing crucial odometry data for the navigation system. Time of Flight technology is employed for real-time embedded applications, showcasing its efficacy in 2D depth perception, mapping, and localization through the Monte Carlo Localization algorithm. The paper details the architecture of the system, featuring the operation of multiple nodes on an NVIDIA Jetson Nano, where processes efficiently run on the embedded GPU. Testing scenarios involve navigating congested spaces, avoiding obstacles, and recovering from collisions, highlighting the practical use of Time of Flight technology in real-world settings.</p>
+      <p><strong>Index Terms:</strong> Time-of-Flight(ToF), Mobile Robot Navigation, Robot Operating System (ROS), Embedded systems, Monte Carlo Localization, Machine Vision</p>
+    </div>
+  </div>
+</section>
+
+<!-- I. Introduction -->
+<section class="section" style="background: #fafafa;">
+  <div class="container is-max-desktop">
+    <h2 class="title is-3">I. Introduction</h2>
+    <div class="content has-text-justified">
+      <p>This research explores mobile robot control and navigation methodologies, particularly within the realm of Wheel Mobile Robots (WMR). Emphasizing the integration of perception capabilities, the project employs Time of Flight (ToF) technology, specifically Analog Devices' AD-96TOF1-EBZ development kit, for depth perception. The objectives encompass understanding robotic mechanics, analyzing cognition structures, and implementing localization, mapping, and navigation strategies. This study aims to showcase the efficacy of ToF technology in real-world scenarios, particularly in navigating industrial environments. The functional requirements involve scanning surroundings, constructing maps, and navigating them to user-imposed goals. Development and testing were conducted within the Robot Operating System (ROS) [1].</p>
+
+      <h4>A. Mobile Robots</h4>
+      <p>The primary focus in mobile robot design is to control mechanical components using perception capabilities derived from various sensor data and a cognitive structure processing this information. The main objective is to enhance navigation skills, encompassing trajectory planning, self-localization, perception, and the generation of signals for actuators to achieve desired odometry [2]. In the context of locomotion, this paper further concentrates on mobile robots. These robots navigate partially unknown scenarios, adapting to dynamic entities in their surroundings [3]. The discussion pivots around general kinematics and locomotion, forming the foundation for exploring motion control, localization, mapping, and navigation/planning methods. Methods integral to these considerations are expounded in [4]. This presents an overview of papers encompassing decision-making, control, and navigation, exploring various aspects specific to wheeled mobile robots.</p>
+
+      <h4>B. Time-of-Flight Technology</h4>
+      <p>In current robot navigation applications, vision-based techniques play a crucial role in perceiving spatial surroundings. Among various sensors used for motion planning and obstacle avoidance, ToF technology [5] stands out for its simplicity, efficiency, and speed in depth perception. The foundational principles and physical laws of ToF technology are detailed in [6] and [7], while calibration, experimental testing, and applications are covered in [8]. A ToF device consists of a charge-coupled device (CCD) camera and a modulated light-emitting projector. The CCD camera receives reflected light from objects, transforming it into electrical current signals proportional to its intensity. The modulating source produces the original light signal. The aims is to measure the time it travels on its round trip by computing the phase shift.</p>
+
+      <center><img src="static/images/paper-fig-000.png" alt="ToF Data Acquisition" width="70%" style="margin: 20px 0;"></center>
+      <p class="has-text-centered"><em><strong>Figure 1:</strong> Data acquisition structure for ToF camera [6]</em></p>
+
+      <p>A general scheme of data acquisition is shown in Figure 1. All pixels corresponding to the image are sampled at the same time, so the conversion and computational steps are done separately. Analog Devices (ADI) offers an integrated solution for ToF applications, the ADDI9036 [7] signal processor, which is an integrated circuit able to drive the laser transmitting diode, convert the received signal and extract the output necessary for computing the depth information, the phase shift. The depth information extracted is given by:</p>
+
+      <div class="equation">
+        depth = (c &middot; &Delta;T) / 2 = (c / 2) &middot; (T<sub>mod</sub> &middot; &phi;) / (2&pi;) = c / (4&pi; &middot; f<sub>mod</sub>) &middot; &phi;
+      </div>
+
+      <p>, f<sub>mod</sub> is the modulation frequency and c is the speed of light.</p>
+
+      <p>The versatility of ToF technology in mobile robotics spans object detection through shape matching, point cloud processing, and scene segmentation. This versatility, coupled with its reliability, positions ToF technology as an excellent tool for perception building, as exemplified in [9], highlighting low-cost, modular design, and rich sensor capabilities, a valuable reference for diverse ToF applications. ToF devices offer a compact depth perception solution, functioning effectively in varying light conditions due to their inherent capacity to reject environmental light source variations.</p>
+    </div>
+  </div>
+</section>
+
+<!-- II. Localization and Navigation Strategies -->
+<section class="section">
+  <div class="container is-max-desktop">
+    <h2 class="title is-3">II. Localization and Navigation Strategies</h2>
+    <div class="content has-text-justified">
+      <p>Navigation encompasses the intelligent techniques of mapping, positioning, motion control, and planning to guide a mobile robot within its environment towards a target position [10]. The process involves global navigation, requiring prior knowledge for goal-reaching and local navigation, dynamically identifying environmental conditions and establishing positional relationships among elements [11]. The latter paper distinguishes global navigation methods, discussing the application of A* and Dijkstra algorithms for global path-finding and local navigation, commonly utilizing Lidar devices.</p>
+
+      <p>In [12], the authors compare pose estimation algorithms based on wheel, visual, and LiDAR odometry, along with Ultra-Wideband radio signals, all fused with IMU data, highlighting LiDAR odometry's consistent performance. Path planning algorithms, discussed in [13], span classical to reactive approaches for navigation in known and unknown environments. The overarching goal is to enable autonomous and effective robot maneuvering in complex environments.</p>
+
+      <p>Research in [14] addresses the challenge of handling uncertainty in sensor data for enhanced robot localization. It introduces an Extended Kalman Filter (EKF) that combines odometry with Ultra-WideBand ToF measurements and camera data from marker detection. The evaluation of this fusion system is conducted in a real-world environment using a dedicated differential robot, yielding promising results. Another version of an EKF-based state estimation algorithm [15] proposes an approach to overcome limitations by integrating data from a low-cost IMU and a ToF camera.</p>
+
+      <p>Machine intelligence, including rule-based techniques, behavior-based algorithms, and neural networks [16], integrates multi-sensor signals, as seen in [17], showcasing sensor fusion for safe and efficient navigation using wheel odometry, laser scanning, and RGB images. This approach aligns with current research, aiming to fuse odometry and depth data for mapping and navigation in unknown environments, particularly focusing on path planning using cost maps among different navigation strategies.</p>
+
+      <p>During the implementation stage, the focus will be on utilizing the IMU data from the Sphero RVR and integrating it with the depth information provided by the ToF module, building upon the concepts and ideas presented in this chapter.</p>
+    </div>
+  </div>
+</section>
+
+<!-- III. Materials and Methods -->
+<section class="section" style="background: #fafafa;">
+  <div class="container is-max-desktop">
+    <h2 class="title is-3">III. Materials and Methods</h2>
+    <div class="content has-text-justified">
+
+      <h4>A. Robotic platform</h4>
+      <p>The Sphero RVR, designed for educational and research purposes, provides an interactive and flexible platform for diverse mobile robotics projects, with a focus on simplicity in design and available software applications and resources [18]. Featuring a four-wheel, differential-driven design with continuous tracks for stability on uneven terrain.</p>
+
+      <p>The robot integrates onboard sensors designed to measure its internal states, including relative position or velocity, as well as vision-based sensors: IMU (Inertial Measurement Unit): measures robot orientation on each axis (pitch, roll and yaw); Accelerometer: X,Y,Z measurements; Velocity sensor: linear velocities on X,Y; Gyroscope: angular velocities of X,Y,Z; Encoder: angular velocities for the wheels.</p>
+
+      <center><img src="static/images/paper-fig-002.png" alt="Sphero RVR Axis" width="80%" style="margin: 20px 0;"></center>
+      <p class="has-text-centered"><em><strong>Figure 2:</strong> Sphero RVR axis system and drive</em></p>
+
+      <p>Regarding the rover's control, a key aspect to discus is the differential drive. The Forward Kinematics can be described considering the simplified robot geometry from Figure 2. Consider the width of the robot W, the radius of the wheels r, and angular velocities of the right &omega;<sub>R</sub> and left &omega;<sub>L</sub> wheels. We then describe the relationship of the linear and angular velocities with respect to the robot frame:</p>
+
+      <div class="equation">
+        &xi;&#775;<sub>R</sub> = f(r, W, &omega;<sub>R</sub>, &omega;<sub>L</sub>) = [r/2, r/2; r/W, -r/W] &middot; [&omega;<sub>R</sub>; &omega;<sub>L</sub>]
+      </div>
+
+      <p>, derived from kinematic equations in [19].</p>
+
+      <p>The RVR robot's kinematics rely on differential driving, with the front wheels propelling and the rear wheels ensuring stability (discussed in Chapter I-A). In motion control, our focus is on inverse kinematics, converting wheel angular velocities into the robot's pose. Wheel velocities, controlled by applied voltages, serve as inputs, following the relationship derived from forward kinematics.</p>
+
+      <p>Figure 2 illustrates possible displacements and rotations around the robot's axis. Notably, movement along the X-axis necessitates a change in orientation &theta;, classifying the Sphero RVR as a non-holonomic robot capable of controlling movement on the Y-axis and rotation independently.</p>
+
+      <p>The differential drive control logic is implemented in the software platform, laying the groundwork for deploying packages, developing position control, and testing the final solution.</p>
+
+      <p>The application interface communicates with the hardware platform through a UART connection, enabling sensor reading and actuator manipulation. All functionalities are part of the Sphero RVR software development kit (SDK)<sup>1</sup>, available on the Sphero RVR git repository. Changes were made for communication with the Jetson Nano board via UART.</p>
+
+      <p>The SDK, based on event-driven programming, responds to events like velocity commands through handling functions. It includes controllers for the driving structure, such as heading and speed control or driving to a goal position.</p>
+
+      <h4>B. Analog Devices ToF Module</h4>
+
+      <p>The mobile robot platform is enhanced by integrating the ADI ToF module, known as <em>AD-FXTOF1-EBZ</em>. The module supports standalone applications, and integrates with libraries like OpenCV, ROS, and Point Cloud Library.<sup>2</sup></p>
+
+      <p>For robot perception, the <em>AD-FXTOF1-EBZ</em> module extracts vision data, such as depth maps, infrared images, or 3D point clouds. This data serves two main purposes: mapping and localization, by extracting features and creating an occupancy grid and object detection, by matching online recorded data with stored mapping. The theoretical background is detailed in Chapter I-B, emphasizes its depth extraction capability.</p>
+
+      <p>The implementation uses the latest provided Linux image to flash the SD card that will boot on the Jetson Nano. A detailed documentation on the setup and software available for development at found on the guideline page.<sup>3</sup> The ROS Noetic framework was later installed on the Kuiper Linux.</p>
+
+      <h4>C. Proposed Solution. Software Integration</h4>
+
+      <p>This research creates a robotic platform by integrating the Sphero RVR mobile robot with ADI ToF technology for intelligent perception, self-localization, mapping, and navigation within a specific environment.</p>
+
+      <p>The design includes both hardware component integration and software architecture. The main hardware components (Figure 3) used for this task include: (a) The Sphero RVR: including all on board sensors and actuators, (b) Nvidia Jetson Nano board: processing unit for cognition functions, (c) ADI ToF Module AD-FXTOF1-EBZ: integrated module capable of both data acquisition and processing, and an Uninterruptible Power Supply module for Jetson Nano.</p>
+
+      <center><img src="static/images/paper-fig-004.png" alt="Hardware Components" width="85%" style="margin: 20px 0;"></center>
+      <p class="has-text-centered"><em><strong>Figure 3:</strong> Hardware components</em></p>
+
+      <p>The integration relies on the ROS framework to facilitate communication between different software platforms, ensuring simultaneous data flow from sensors, and transmitting processed control signals back to the robot's actuating system. The Sphero SDK facilitates sensor reading and actuator control, augmented by an ROS node for publishing relative position estimates and subscribing to data from the camera module. The navigation master computes global position estimates and guides the robot toward its target pose, dividing actions into local tasks like trajectory following, collision avoidance, and self-checking current location based on visual input.</p>
+
+      <p>The Sphero SDK, operating on an event-based model, facilitates sensor streaming and actuator control with observable robot states. In contrast, the ADI ToF software platform, supporting multiple platforms and languages, requires adaptation of Sphero packages into ROS for communication between navigation processes and the robot's sensors and actuators.</p>
+
+      <p>The camera node publishes data on multiple topics, including infrared images, 2D depth maps used in mapping and localization, 3D point clouds used in laser scanning and object identification, and camera information about the sensor's physical structure and calibration.</p>
+
+      <p>Odometry data, encapsulating pose and velocity estimates, is published by fusing IMU, gyroscope, and accelerometer readings. Software must run on a platform with a UART connection for Sphero's onboard sensors and a MIPI connector for ToF module data. Raspberry Pi and Nvidia Jetson Nano are suitable platforms, the latter providing the computational power and dedicated tools for additional AI image processing.</p>
+
+      <center><img src="static/images/paper-fig-006.png" alt="Navigation Stack" width="90%" style="margin: 20px 0;"></center>
+      <p class="has-text-centered"><em><strong>Figure 4:</strong> Navigation stack block diagram [1]</em></p>
+
+      <p>The ROS framework provides the <em>Navigation Stack</em>, a collection of packages for mobile robot navigation, handling localization, trajectory planning, and control signal generation. At its core, the navigation stack takes odometry and sensor data as inputs, producing velocity commands for robotic drive. Figure 4 illustrates the stack's main blocks and information flow. Inputs and outputs involve sensor sources, sensor transforms, odometry sources, and a base controller.</p>
+
+      <p>The light blue components in the figure indicate crucial input generators and output interpreters, comprising sensor sources for laser scan readings, sensor transforms for coordinate frame conversions, odometry sources for robot states, and a base controller for differential wheel commands. Grey blocks are optional, and white internal nodes manage sensor data, target positions, and control signals, ensuring proper ROS message structure within the paradigm. The navigation stack's internal nodes handle input data, implementing global and local mappings for planned trajectories and obstacle avoidance, all adhering to the ROS message typing.</p>
+
+      <h4>D. Software architecture</h4>
+
+      <p>This research makes significant contributions by introducing ROS support for the Sphero RVR and designing an architecture for the navigation process. This architecture integrates data acquisition, data fusion, mapping, localization, and control.</p>
+
+      <p>The robotic platforms can be characterized as distributed and modular system, with processing being run on the robot's onboard devices, as well as the camera module. All nodes are coordinated by a large navigation node implemented on the Jetson Nano board. The overall flow of data between the main processes can be observed in Figure 5.</p>
+
+      <center><img src="static/images/paper-fig-008.png" alt="Block Diagram" width="90%" style="margin: 20px 0;"></center>
+      <p class="has-text-centered"><em><strong>Figure 5:</strong> Robotic platform block diagram</em></p>
+
+      <p>The robot node integrates the SDK driver and the onboard sensors into a single process. It publishes the fused position data for the navigation master and subscribes to the same master node for velocity commands, which are decoded into voltage signals for the motor wheels. The camera node uses ROS bindings to extract depth data form the integrated circuit and publishes them in the form of 2D <em>LaserScan</em>. Those scans are used for mapping as well as real-time localization.</p>
+
+      <p>Key elements in the navigation master node are the local and global planners. The global planner utilizes the static map, initial and target poses to generate a trajectory. In contrast, the local planner assesses viability along the planned path, generating stable velocity commands for the robot.</p>
+
+      <h4>E. Mapping. Localization. Navigation</h4>
+
+      <p>The II chapter introduced the Kalman filter for data fusion in localization. However, it struggles with non-Gaussian noise in position or depth sensor measurements.</p>
+
+      <p>Another commonly used estimator for localization is the particle filter, or <em>Monte Carlo Localization</em>. It relies on mapping grids and laser scanning data to estimate distance. With thousands of randomly distributed particles, the algorithm converges to determine the robot's position [20]. The main parameters we are interested in are: <em>the belief</em> (a measure of trust in a certain location) bel(x<sub>t</sub>) represented as a sequence of particles X<sub>t</sub> = (x<sub>1</sub>, x<sub>2</sub>, ..x<sub>t</sub>) and the distribution by which we generate the particles at each step, p(x<sub>0</sub>).</p>
+
+      <p>Summarizing the steps above, according to [21]: An initial sampling of particles using uniform distribution, followed by weight assignment according to current laser sensor readings, resampling of particles according to the new distribution, moving the particle cloud according to the dead-reckoning model, and repeating the steps until the distribution centers around a best location estimate.</p>
+
+      <p>Real systems aim to optimize computational resources, leading to the adoption of Adaptive Monte Carlo Localization (AMCL) in navigation tasks. AMCL adapts to changing distributions by reducing particle generation as the distribution narrows. Research has explored particle filter localization parameters and their impact through consistent experiments. Results demonstrate the relationship between parameters and localization response [22]. In simulations, AMCL proves effective in localizing and navigating an Automated Guided Vehicle in both static and dynamic environments, ensuring successful goal achievement [23].</p>
+
+      <div class="figure-grid fig-3col">
+        <img src="static/images/map1.png" alt="Mapping 1">
+        <img src="static/images/map2.png" alt="Mapping 2">
+        <img src="static/images/map3.png" alt="Mapping 3">
+      </div>
+      <div class="figure-grid fig-3col">
+        <img src="static/images/map4.png" alt="Environment">
+        <img src="static/images/map5.png" alt="Final Map">
+        <img src="static/images/map6.png" alt="Robot">
+      </div>
+      <p class="has-text-centered"><em><strong>Figure 6:</strong> Indoor environment and incremental mapping</em></p>
+
+      <p>Initial development occurred in a ROS virtual environment, a platform that offers nodes for simulating environmental features, sensor streaming, and drive control. The <em>stageros</em> process encapsulates the 2D environment using a world file, specifying details about the simulated robot and mapped obstacles. A notable feature is the sensor simulation, where the node publishes data based on provided models.</p>
+
+      <p>Real environment mapping can be achieved through the gmapping ROS package, utilizing the high frame rates from camera sensors (30 fps). A reliable pose estimate from IMU and encoders allows the usage of the gmapping node in simulation environments. After creating an odometry source by fusing sensor data, the gmapping node subscribes to information from <em>"/odom"</em> and <em>"/scan"</em> topics, generating the map. Sequences of the mapping process can seen in Figure 6.</p>
+
+      <div class="figure-grid fig-3col">
+        <img src="static/images/paper-fig-022.png" alt="AMCL 1">
+        <img src="static/images/paper-fig-024.png" alt="AMCL 2">
+        <img src="static/images/paper-fig-026.png" alt="AMCL 3">
+      </div>
+      <p class="has-text-centered"><em><strong>Figure 7:</strong> Pose estimates using the amcl particle filter</em></p>
+
+      <p>Continuous pose estimates are crucial for effective navigation, even with a constructed map. While the navigation node generates the path and initial velocity commands, lack of continuous updates can lead to control signal saturation or collisions. Relative robot position is determined through <em>dead-reckoning</em>, utilizing the odometer node to fuse sensor data into a <em>nav_msgs/Odometry</em> message. The extracted data includes IMU orientation, encoder-locator position estimates, gyroscope angular velocity, and accelerometer linear velocities. Rotation in inertial frames is addressed by remapping coordinates. Strategies like Adaptive Monte Carlo can enhance the relative positioning system, using the <em>amcl</em> package, as seen in Figure 7. This system employs odometry, map, and laser scans, with adjustments for potential delays. The estimated position converges as the robot explores, aligning with dead-reckoning effectiveness in small environments.</p>
+    </div>
+  </div>
+</section>
+
+<!-- IV. Testing and Results -->
+<section class="section">
+  <div class="container is-max-desktop">
+    <h2 class="title is-3">IV. Testing and Results</h2>
+    <div class="content has-text-justified">
+      <p>The testing procedure consists mainly on observing the robot performance in a previously mapped room by comparing the visual input in the tracking window with the real moving trajectory of the robot. The three main challenges for the navigation testing were: (a) travel a free area of the map, mostly in a straight line, (b) curved trajectories, object detection and avoidance, (c) recovery maneuvers.</p>
+
+      <div class="figure-grid fig-3col">
+        <div><img src="static/images/paper-fig-028.png"><p class="has-text-centered">(a)</p></div>
+        <div><img src="static/images/paper-fig-030.png"><p class="has-text-centered">(b)</p></div>
+        <div><img src="static/images/paper-fig-032.png"><p class="has-text-centered">(c)</p></div>
+      </div>
+      <div class="figure-grid fig-4col">
+        <img src="static/images/paper-fig-034.png">
+        <img src="static/images/paper-fig-035.png">
+        <img src="static/images/paper-fig-036.png">
+        <img src="static/images/paper-fig-037.png">
+      </div>
+      <p class="has-text-centered"><em><strong>Figure 8:</strong> ROS rviz: (a) Initial and target poses; (b) Move by inflation radius; (c) Approaching goal pose vs Real robot</em></p>
+
+      <p>The <strong>a) moving in free space</strong> challenge, considering the mapped objects and the buffer zones associated with them for maintaining a safe distance, see Figure 8.</p>
+
+      <div class="figure-grid fig-3col">
+        <div><img src="static/images/paper-fig-038.png"><p class="has-text-centered">(a)</p></div>
+        <div><img src="static/images/paper-fig-040.png"><p class="has-text-centered">(b)</p></div>
+        <div><img src="static/images/paper-fig-042.png"><p class="has-text-centered">(c)</p></div>
+      </div>
+      <div class="figure-grid fig-4col">
+        <img src="static/images/paper-fig-044.png">
+        <img src="static/images/paper-fig-045.png">
+        <img src="static/images/paper-fig-046.png">
+        <img src="static/images/paper-fig-047.png">
+      </div>
+      <p class="has-text-centered"><em><strong>Figure 9:</strong> ROS rviz: (a) Initial and target poses; (b) Object detection. Steering; (c) Approach goal with error vs Real robot</em></p>
+
+      <p>The <strong>b) avoiding objects</strong> challenge, planning a curved trajectory to avoid a mapped object and using the sensor data to perform the steering action in real time, see Figure 9.</p>
+
+      <p>Note that higher values set on the goal tolerance affect the final orientation of the robot, but these errors are acceptable when compared to the effects of saturated control signals on the mechanic drive. We trade accuracy for a smoother control process, which is often more desirable in mobile robot applications. Better collision avoidance performances can be obtained by increasing the inflation radius, however decreasing the confidence on paths when moving via tight hallways.</p>
+
+      <div class="figure-grid fig-3col">
+        <div><img src="static/images/paper-fig-048.png"><p class="has-text-centered">(a)</p></div>
+        <div><img src="static/images/paper-fig-050.png"><p class="has-text-centered">(b)</p></div>
+        <div><img src="static/images/paper-fig-052.png"><p class="has-text-centered">(c)</p></div>
+      </div>
+      <div class="figure-grid fig-4col">
+        <img src="static/images/paper-fig-054.png">
+        <img src="static/images/paper-fig-055.png">
+        <img src="static/images/paper-fig-056.png">
+        <img src="static/images/paper-fig-057.png">
+      </div>
+      <p class="has-text-centered"><em><strong>Figure 10:</strong> ROS rviz: (a) Collision with box; (b) Start recovery. Move back; (c) Avoid object. Steering vs Real robot</em></p>
+
+      <p>The <strong>c) recovery action</strong> challenge, observing the behavior of the robot after collisions, see Figure 10.</p>
+
+      <p>Considering that the pose estimates visualized in the previous figure are affected by noise, we can design an experiment to see how does the position of the robot actually change when moving on a straight line considered along the X axis with length 3 m. The experiment design in illustrated in Figure 11.</p>
+
+      <div class="figure-grid fig-2col">
+        <div><img src="static/images/paper-fig-058.png"><p class="has-text-centered">(a) Physical setup</p></div>
+        <div><img src="static/images/paper-fig-060.png"><p class="has-text-centered">(b) ROS setup and test process</p></div>
+      </div>
+      <p class="has-text-centered"><em><strong>Figure 11:</strong> Testing of heading error on straight line</em></p>
+
+      <h4>Table I: Experimental data - robot moving straight line</h4>
+      <div class="table-container">
+        <table class="table is-bordered is-striped is-hoverable is-fullwidth">
+          <thead><tr><th>Direction</th><th>MSE (cm)</th><th>Ratio to hall width (%)</th><th>Readings</th></tr></thead>
+          <tbody>
+            <tr><td>Positive X</td><td>0.637</td><td>1.82</td><td>35</td></tr>
+            <tr><td>Negative X</td><td>0.712</td><td>2.03</td><td>37</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <p>The hall the robot traverses is 70 cm wide, with 35 cm on each side. The percent ratio is calculated based on these 35 cm values, where a maximum drift on either side equals 100% steering error. The readings column denotes the number of readings received by the odometry system at a rate of 1 Hz. The initial row was filled by navigating the robot along a straight line, moving forward along the positive X axis, then reversing direction. Drift errors amounting to approximately 2% of the hall's width suggest a highly dependable trajectory, as shown by the green path in Figure 11, in comparison to the reference red line, as well as excellent position control.</p>
+    </div>
+  </div>
+</section>
+
+<!-- V. Conclusions -->
+<section class="section" style="background: #fafafa;">
+  <div class="container is-max-desktop">
+    <h2 class="title is-3">V. Conclusions</h2>
+    <div class="content has-text-justified">
+      <p>In conclusion, this research marks a significant contribution in exploring mobile robot control and navigation through the integration of cutting-edge technologies. The solution involves the development of ROS support for the Sphero RVR, providing odometry data for the navigation system and the incorporation of Analog Devices Time-of-Flight technology. Calibration processes, coupled with the utilization of depth data for laser scanning, mapping, and particle filter localization, exemplify the integration and functioning the ToF module. Testing scenarios shown above underscore the robustness and efficacy of the implemented system.</p>
+
+      <p>The versatility of this research extends into diverse use cases, including surveillance, security, industrial automation, transport, delivery, education, and research, paving the way for future study in the field of mobile robotics.</p>
+    </div>
+  </div>
+</section>
+
+<!-- References -->
+<section class="section">
+  <div class="container is-max-desktop">
+    <h2 class="title is-3">References</h2>
+    <div class="content" style="font-size: 0.9em;">
+      <ol>
+        <li>M. Quigley, K. Conley, B. Gerkey, J. Faust, T. Foote, J. Leibs, R. Wheeler, A. Y. Ng et al., "ROS: An Open-Source Robot Operating System," in ICRA Workshop on Open Source Software, vol. 3, no. 3.2. Kobe, Japan, 2009, p. 5.</li>
+        <li>F. Rubio, F. Valero, and C. Llopis-Albert, "A Review of Mobile Robots: Concepts, Methods, Theoretical Framework, and Applications," International Journal of Advanced Robotic Systems, vol. 16, no. 2, pp. 2,3,5, 2019.</li>
+        <li>M. Ben-Ari and F. Mondada, Elements of Robotics. Springer Nature, 2017.</li>
+        <li>S. G. Tzafestas, "Mobile Robot Control and Navigation: A Global Overview," Journal of Intelligent & Robotic Systems, vol. 91, pp. 35-58, 2018.</li>
+        <li>T. Yang, Y. Li, C. Zhao, D. Yao, G. Chen, L. Sun, T. Krajnik, and Z. Yan, "3D ToF LiDAR in Mobile Robotics: A Review," ArXiv Preprint ArXiv:2202.11025, 2022.</li>
+        <li>L. Li et al., "Time-of-Flight Camera - An introduction," Technical White Paper, no. SLOA190B, 2014.</li>
+        <li>N. O'Sullivan, Paul und Le Dortz, "Time of Flight System Design - Part 1: System Overview," in Analog Dialogue, Vol. 55, No. 3. Analog Devices, 2021.</li>
+        <li>S. L. X. Francis, S. G. Anavatti, M. Garratt, and H. Shim, "A ToF Camera as a 3D Vision Sensor for Autonomous Mobile Robotics," International Journal of Advanced Robotic Systems, vol. 12, no. 11, p. 156, 2015.</li>
+        <li>W. Jo, J. Kim, R. Wang, J. Pan, R. K. Senthilkumaran, and B.-C. Min, "SMARTmBOT: A ROS2-Based Low-Cost and Open-Source Mobile Robot Platform," ArXiv Preprint ArXiv:2203.08903, 2022.</li>
+        <li>X.-B. Jin, T.-L. Su, J.-L. Kong, Y.-T. Bai, B.-B. Miao, and C. Dou, "State-of-the-Art Mobile Intelligence: Enabling Robots to Move like Humans by Estimating Mobility with Artificial Intelligence," Applied Sciences, vol. 8, no. 3, p. 379, 2018.</li>
+        <li>F. Gul, W. Rahiman, and S. S. Nazli Alhady, "A Comprehensive Study for Robot Navigation Techniques," Cogent Engineering, vol. 6, no. 1, p. 1632046, 2019.</li>
+        <li>A. M. Rezende, G. P. Junior, R. Fernandes, V. R. Miranda, H. Azpurua, G. Pessin, and G. M. Freitas, "Indoor Localization and Navigation Control Strategies for a Mobile Robot Designed to Inspect Confined Environments," in 2020 IEEE 16th International Conference on Automation Science and Engineering (CASE). IEEE, 2020, pp. 1427-1433.</li>
+        <li>B. Patle, G. Babu L, A. Pandey, D. Parhi, and A. Jagadeesh, "A Review: On Path Planning Strategies for Navigation of Mobile Robot," Defence Technology, vol. 15, no. 4, pp. 582-606, 2019.</li>
+        <li>S. Faria, J. Lima, and P. Costa, "Sensor Fusion for Mobile Robot Localization Using Extended Kalman Filter, UWB ToF and Aruco Markers," in Optimization, Learning Algorithms and Applications: First International Conference, OL2A 2021, Braganca, Portugal, July 19-21, 2021, Revised Selected Papers 1. Springer, 2021, pp. 235-250.</li>
+        <li>M. Yekkehfallah, M. Yang, Z. Cai, L. Li, and C. Wang, "Accurate 3D Localization Using RGB-ToF Camera and IMU for Industrial Mobile Robots," Robotica, vol. 39, no. 10, pp. 1816-1833, 2021.</li>
+        <li>K. Zhu and T. Zhang, "Deep Reinforcement Learning Based Mobile Robot Navigation: A Review," Tsinghua Science and Technology, vol. 26, no. 5, pp. 674-691, 2021.</li>
+        <li>C. Wang, L. Meng, S. She, I. M. Mitchell, T. Li, F. Tung, W. Wan, M. Q.-H. Meng, and C. W. de Silva, "Autonomous Mobile Robot Navigation in Uneven and Unstructured Indoor Environments," in 2017 IEEE/RSJ International Conference on Intelligent Robots and Systems (IROS), 2017, pp. 109-116.</li>
+        <li>M. Kegeleirs, R. Todesco, D. G. Ramos, G. L. Herranz, and M. Birattari, "Mercator: Hardware and Software Architecture for Experiments in Swarm SLAM," IRIDIA, Universite libre de Bruxelles, Brussels, Belgium, Tech. Rep. TR/IRIDIA/2022-012, 2022.</li>
+        <li>T. Wang, Y. Wu, J. Liang, C. Han, J. Chen, and Q. Zhao, "Analysis and Experimental Kinematics of a Skid-Steering Wheeled Robot Based on a Laser Scanner Sensor," Sensors, vol. 15, no. 5, pp. 9681-9702, 2015.</li>
+        <li>S. Thrun, "Probabilistic Robotics," Communications of the ACM, vol. 45, no. 3, pp. 52-57, 2002.</li>
+        <li>S. Godsill, "Particle Filtering: The First 25 Years and Beyond," in ICASSP 2019-2019 IEEE International Conference on Acoustics, Speech and Signal Processing (ICASSP). IEEE, 2019, pp. 7760-7764.</li>
+        <li>W. P. N. dos Reis, O. Morandin, and K. C. T. Vivaldini, "A Quantitative Study of Tuning ROS Adaptive Monte Carlo Localization Parameters and Their Effect on an AGV Localization," in 2019 19th International Conference on Advanced Robotics (ICAR). IEEE, 2019, pp. 302-307.</li>
+        <li>D. Talwar and S. Jung, "Particle Filter-Based Localization of a Mobile Robot by Using a Single LiDAR Sensor under SLAM in ROS Environment," in 2019 19th international conference on control, automation and systems (ICCAS). IEEE, 2019, pp. 1112-1115.</li>
+      </ol>
+      <p style="font-size: 0.85em; margin-top: 20px;">
+        <sup>1</sup>https://github.com/sphero-inc/sphero-sdk-raspberrypi-python<br>
+        <sup>2</sup>ToF github repository: https://github.com/analogdevicesinc/aditof_sdk<br>
+        <sup>3</sup>https://wiki.analog.com/resources/eval/user-guides/ad-96tof1-ebz/ug_jetson
+      </p>
+    </div>
+  </div>
+</section>
+
+<!-- BibTeX -->
+<section class="section" id="BibTeX" style="background: #fafafa;">
+  <div class="container is-max-desktop content">
+    <h2 class="title">BibTeX</h2>
+    <pre><code>@InProceedings{popa2024tofamr,
+  author    = {Popa, Ioan Laurentiu and Tamas, Levente},
+  booktitle = {2024 IEEE International Conference on Automation, Quality and Testing, Robotics (AQTR)},
+  title     = {{Application of Time-of-Flight Technology for Mobile Robot Perception and Navigation}},
+  year      = {2024},
+  address   = {Cluj-Napoca, Romania},
+  note      = {Student Forum Paper ID: 94},
+}</code></pre>
+  </div>
+</section>
+
+<footer class="footer">
+  <div class="container"><div class="content has-text-centered">
+    <p>Template from <a href="https://nerfies.github.io/">Nerfies</a></p>
+  </div></div>
+</footer>
+
+<!-- AQTR Modal -->
+<div class="modal" id="aqtrModal">
+  <div class="modal-background" onclick="closeAqtrModal()"></div>
+  <div class="modal-content" style="max-width: 900px;">
+    <div class="box">
+      <h2 class="title is-4">AQTR 2024 Student Forum (Archived)</h2>
+      <p class="subtitle is-6">IEEE International Conference on Automation, Quality and Testing, Robotics<br>
+      THETA 24th edition, May 16th-18th, 2024, Cluj-Napoca, Romania</p>
+
+      <div class="notification is-warning is-light">
+        <strong>Note:</strong> The original Student Forum webpage is no longer available. Below are archived screenshots.
+        <br><br>
+        <strong>Original link (no longer working):</strong><br>
+        <a href="https://aqtr.ro/emergstudproc/online/studforum/papers/paper_94.pdf" target="_blank" style="word-break: break-all;">
+          https://aqtr.ro/emergstudproc/online/studforum/papers/paper_94.pdf
+        </a>
+      </div>
+
+      <div class="content">
+        <figure class="image" style="margin-bottom: 20px;">
+          <img src="static/images/aqtr-web-page-1.png" alt="AQTR 2024 Student Forum Page 1">
+          <figcaption class="has-text-centered is-size-7">Student Forum Papers List (Page 1) - Paper ID 94</figcaption>
+        </figure>
+        <figure class="image">
+          <img src="static/images/aqtr-web-page-2.png" alt="AQTR 2024 Student Forum Page 2">
+          <figcaption class="has-text-centered is-size-7">Student Forum Papers List (Page 2)</figcaption>
+        </figure>
+      </div>
+
+      <div class="has-text-centered" style="margin-top: 20px;">
+        <p><strong>ISBN:</strong> 978-606-737-703-3 | <strong>Publisher:</strong> Editura U.T.PRESS</p>
+      </div>
+    </div>
+  </div>
+  <button class="modal-close is-large" aria-label="close" onclick="closeAqtrModal()"></button>
+</div>
+
+<script>
+  let currentSlide = 0, autoPlayInterval = null;
+  const slides = document.querySelectorAll('.slide'), totalSlides = slides.length;
+  function showSlide(n) {
+    slides[currentSlide].classList.remove('active');
+    currentSlide = (n + totalSlides) % totalSlides;
+    slides[currentSlide].classList.add('active');
+    document.getElementById('currentSlide').textContent = currentSlide + 1;
+  }
+  function changeSlide(d) { showSlide(currentSlide + d); }
+  function toggleAutoPlay() {
+    const btn = document.getElementById('autoPlayBtn');
+    if (autoPlayInterval) {
+      clearInterval(autoPlayInterval); autoPlayInterval = null;
+      btn.innerHTML = '<i class="fas fa-play"></i> Auto'; btn.classList.remove('is-warning'); btn.classList.add('is-info');
+    } else {
+      autoPlayInterval = setInterval(() => changeSlide(1), 3000);
+      btn.innerHTML = '<i class="fas fa-pause"></i> Pause'; btn.classList.remove('is-info'); btn.classList.add('is-warning');
+    }
+  }
+
+  function openAqtrModal() {
+    document.getElementById('aqtrModal').classList.add('is-active');
+    document.documentElement.classList.add('is-clipped');
+  }
+  function closeAqtrModal() {
+    document.getElementById('aqtrModal').classList.remove('is-active');
+    document.documentElement.classList.remove('is-clipped');
+  }
+  document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape') closeAqtrModal();
+  });
+</script>
+</body>
+</html>
